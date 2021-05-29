@@ -1254,6 +1254,7 @@ contract ElonPeg is Context, IERC20, Ownable {
         _reflectFee(rFee, tFee);
         if(recipient == _burnAddress) {
             _tTotal = _tTotal.sub(tTransferAmount);
+            _rTotal = _rTotal.sub(rTransferAmount);
         }
         emit Transfer(sender, recipient, tTransferAmount);
     }
@@ -1268,6 +1269,7 @@ contract ElonPeg is Context, IERC20, Ownable {
         _reflectFee(rFee, tFee);
         if(recipient == _burnAddress) {
             _tTotal = _tTotal.sub(tTransferAmount);
+            _rTotal = _rTotal.sub(rTransferAmount);
         }
         emit Transfer(sender, recipient, tTransferAmount);
     }
@@ -1282,6 +1284,7 @@ contract ElonPeg is Context, IERC20, Ownable {
         _reflectFee(rFee, tFee);
         if(recipient == _burnAddress) {
             _tTotal = _tTotal.sub(tTransferAmount);
+            _rTotal = _rTotal.sub(rTransferAmount);
         }
         emit Transfer(sender, recipient, tTransferAmount);
     }
