@@ -44,7 +44,7 @@ contract BurnUponTweeting is Context, AccessControl {
         // able to reclaim up to _reclaimMaxPct of Burn Vault funds on every 50th Elon tweet
 
         require(hasRole(MARKETING_ROLE, _msgSender()), "Only the marketing wallet can reclaim");
-        require(_tweetCount.mod(2) == 0, "You can only reclaim every 2 tweets");
+        require(_tweetCount.mod(50) == 0, "You can only reclaim every 50 tweets");
         uint256 tokenBalance = ERC20(_token).balanceOf(address(this));
         require(amount <= calculateReclaimMax(tokenBalance), "Reclaim amount too high");
         ERC20(_token).transfer(recipient, amount);
