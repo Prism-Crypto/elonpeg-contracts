@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 contract BurnUponTweeting is Context, AccessControl {
 
     using SafeMath for uint256;
+    event TwitterBurn(string tweetId, uint256 amountSent, uint256 tweetCount);
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
     bytes32 public constant MARKETING_ROLE = keccak256("MARKETING_ROLE");
 
@@ -27,14 +28,15 @@ contract BurnUponTweeting is Context, AccessControl {
         _setupRole(MARKETING_ROLE, _msgSender());
     }
 
-    function ElonTweeted() public {
+    function ElonTweeted(string memory tweetId) public {
         require(hasRole(BURNER_ROLE, _msgSender()), "Only the registered Elon tweet APIs can burn");
         uint256 burnableAmount = ERC20(_token).balanceOf(address(this));
         uint256 amountToBurn = calculateBurnPct(burnableAmount);
+        _tweetCount += 1;
         if (burnableAmount >= 1) {
           ERC20(_token).transfer(_burnWalletAddress, amountToBurn);
+          emit TwitterBurn(tweetId, amountToBurn, _tweetCount);
         }
-        _tweetCount += 1;
     }
 
     function reclaim(address recipient, uint256 amount) public {
@@ -42,7 +44,7 @@ contract BurnUponTweeting is Context, AccessControl {
         // able to reclaim up to _reclaimMaxPct of Burn Vault funds on every 50th Elon tweet
 
         require(hasRole(MARKETING_ROLE, _msgSender()), "Only the marketing wallet can reclaim");
-        require(_tweetCount.mod(50) == 0, "You can only reclaim every 50 tweets");
+        require(_tweetCount.mod(2) == 0, "You can only reclaim every 2 tweets");
         uint256 tokenBalance = ERC20(_token).balanceOf(address(this));
         require(amount <= calculateReclaimMax(tokenBalance), "Reclaim amount too high");
         ERC20(_token).transfer(recipient, amount);
