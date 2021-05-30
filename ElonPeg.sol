@@ -763,7 +763,7 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
     ) external;
 }
 
-contract ElonPeg is Context, IERC20, Ownable {
+contract Abrqsstrv is Context, IERC20, Ownable {
     using SafeMath for uint256;
     using Address for address;
 
@@ -777,15 +777,16 @@ contract ElonPeg is Context, IERC20, Ownable {
     address[] private _excluded;
 
     address public _marketingWalletAddress;
-    
+
     address public _burnAddress = 0x000000000000000000000000000000000000dEaD;
 
     uint256 private constant MAX = ~uint256(0);
     uint256 private _tTotal = 1000000000000 * 10**9;
     uint256 private _rTotal = (MAX - (MAX % _tTotal));
     uint256 private _tFeeTotal;
+    uint256 private _tCircDisplay = _tTotal;
 
-    string private _name = "Inverse Elon";
+    string private _name = "Elon Peg";
     string private _symbol = "ELONPEG";
     uint8 private _decimals = 9;
 
@@ -794,18 +795,18 @@ contract ElonPeg is Context, IERC20, Ownable {
 
     uint256 public _marketingFee = 3;
     uint256 private _previousMarketingFee = _marketingFee;
-    
+
     uint256 public _liquidityFee = 3;
     uint256 private _previousLiquidityFee = _liquidityFee;
-    
+
     IUniswapV2Router02 public uniswapV2Router;
     address public uniswapV2Pair;
 
     bool inSwapAndLiquify;
     bool public swapAndLiquifyEnabled = true;
 
-    uint256 public _maxTxAmount = 20000 * 10**6 * 10**9;
-    uint256 public numTokensSellToAddToLiquidity = 2000 * 10**6 * 10**9;
+    uint256 public _maxTxAmount = 5000 * 10**6 * 10**9;
+    uint256 public numTokensSellToAddToLiquidity = 500 * 10**6 * 10**9;
 
     event MinTokensBeforeSwapUpdated(uint256 minTokensBeforeSwap);
     event SwapAndLiquifyEnabledUpdated(bool enabled);
@@ -824,8 +825,8 @@ contract ElonPeg is Context, IERC20, Ownable {
     constructor () {
         _rOwned[owner()] = _rTotal;
 
-        //IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F);
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
+        //IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
          // Create a uniswap pair for this new token
         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
             .createPair(address(this), _uniswapV2Router.WETH());
@@ -855,7 +856,7 @@ contract ElonPeg is Context, IERC20, Ownable {
     }
 
     function totalSupply() public view override returns (uint256) {
-        return _tTotal;
+        return _tCircDisplay;
     }
 
     function balanceOf(address account) public view override returns (uint256) {
@@ -955,7 +956,8 @@ contract ElonPeg is Context, IERC20, Ownable {
             }
         }
     }
-        function _transferBothExcluded(address sender, address recipient, uint256 tAmount) private {
+    
+    function _transferBothExcluded(address sender, address recipient, uint256 tAmount) private {
         (uint256 rAmount, uint256 rTransferAmount, uint256 rFee, uint256 tTransferAmount, uint256 tFee, uint256 tLiquidity, uint256 tMarketing) = _getValues(tAmount);
         _tOwned[sender] = _tOwned[sender].sub(tAmount);
         _rOwned[sender] = _rOwned[sender].sub(rAmount);
@@ -965,12 +967,12 @@ contract ElonPeg is Context, IERC20, Ownable {
         _takeMarketing(tMarketing);
         _reflectFee(rFee, tFee);
         if(recipient == _burnAddress) {
-            _tTotal = _tTotal.sub(tTransferAmount);
+            _tCircDisplay = _tCircDisplay.sub(tTransferAmount);
         }
         emit Transfer(sender, recipient, tTransferAmount);
     }
 
-        function excludeFromFee(address account) public onlyOwner {
+    function excludeFromFee(address account) public onlyOwner {
         _isExcludedFromFee[account] = true;
     }
 
@@ -983,13 +985,9 @@ contract ElonPeg is Context, IERC20, Ownable {
     }
 
 
-       function setTokenLiquifyCap(uint256 tokenNumber) external onlyOwner() {
+    function setTokenLiquifyCap(uint256 tokenNumber) external onlyOwner() {
         numTokensSellToAddToLiquidity = tokenNumber* 10**6 * 10**9;
-
-       }
-
-
-
+    }
 
     function setMarketingFeePercent(uint256 marketingFee) external onlyOwner() {
         _marketingFee = marketingFee;
@@ -1015,7 +1013,7 @@ contract ElonPeg is Context, IERC20, Ownable {
 
     function _reflectFee(uint256 rFee, uint256 tFee) private {
         _rTotal = _rTotal.sub(rFee);
-        _tTotal= _tTotal.sub(tFee);
+        _tFeeTotal = _tFeeTotal.add(tFee);
     }
 
     function _getValues(uint256 tAmount) private view returns (uint256, uint256, uint256, uint256, uint256, uint256, uint256) {
@@ -1253,8 +1251,7 @@ contract ElonPeg is Context, IERC20, Ownable {
         _takeMarketing(tMarketing);
         _reflectFee(rFee, tFee);
         if(recipient == _burnAddress) {
-            _tTotal = _tTotal.sub(tTransferAmount);
-            _rTotal = _rTotal.sub(rTransferAmount);
+            _tCircDisplay = _tCircDisplay.sub(tTransferAmount);
         }
         emit Transfer(sender, recipient, tTransferAmount);
     }
@@ -1268,8 +1265,7 @@ contract ElonPeg is Context, IERC20, Ownable {
         _takeMarketing(tMarketing);
         _reflectFee(rFee, tFee);
         if(recipient == _burnAddress) {
-            _tTotal = _tTotal.sub(tTransferAmount);
-            _rTotal = _rTotal.sub(rTransferAmount);
+            _tCircDisplay = _tCircDisplay.sub(tTransferAmount);
         }
         emit Transfer(sender, recipient, tTransferAmount);
     }
@@ -1283,8 +1279,7 @@ contract ElonPeg is Context, IERC20, Ownable {
         _takeMarketing(tMarketing);
         _reflectFee(rFee, tFee);
         if(recipient == _burnAddress) {
-            _tTotal = _tTotal.sub(tTransferAmount);
-            _rTotal = _rTotal.sub(rTransferAmount);
+            _tCircDisplay = _tCircDisplay.sub(tTransferAmount);
         }
         emit Transfer(sender, recipient, tTransferAmount);
     }
@@ -1295,5 +1290,5 @@ contract ElonPeg is Context, IERC20, Ownable {
         uniswapV2Pair = IUniswapV2Factory(_newPancakeRouter.factory()).createPair(address(this), _newPancakeRouter.WETH());
         uniswapV2Router = _newPancakeRouter;
     }
-    
+
 }
