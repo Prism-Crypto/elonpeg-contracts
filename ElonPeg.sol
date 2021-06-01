@@ -784,7 +784,6 @@ contract ElonPeg is Context, IERC20, Ownable {
     uint256 private _tTotal = 1000000000000 * 10**9;
     uint256 private _rTotal = (MAX - (MAX % _tTotal));
     uint256 private _tFeeTotal;
-    uint256 private _tCircDisplay = _tTotal;
 
     string private _name = "Elon Peg";
     string private _symbol = "ELONPEG";
@@ -856,7 +855,7 @@ contract ElonPeg is Context, IERC20, Ownable {
     }
 
     function totalSupply() public view override returns (uint256) {
-        return _tCircDisplay;
+        return _tTotal;
     }
 
     function balanceOf(address account) public view override returns (uint256) {
@@ -966,9 +965,6 @@ contract ElonPeg is Context, IERC20, Ownable {
         _takeLiquidity(tLiquidity);
         _takeMarketing(tMarketing);
         _reflectFee(rFee, tFee);
-        if(recipient == _burnAddress) {
-            _tCircDisplay = _tCircDisplay.sub(tTransferAmount);
-        }
         emit Transfer(sender, recipient, tTransferAmount);
     }
 
@@ -1250,9 +1246,6 @@ contract ElonPeg is Context, IERC20, Ownable {
         _takeLiquidity(tLiquidity);
         _takeMarketing(tMarketing);
         _reflectFee(rFee, tFee);
-        if(recipient == _burnAddress) {
-            _tCircDisplay = _tCircDisplay.sub(tTransferAmount);
-        }
         emit Transfer(sender, recipient, tTransferAmount);
     }
 
@@ -1264,9 +1257,6 @@ contract ElonPeg is Context, IERC20, Ownable {
         _takeLiquidity(tLiquidity);
         _takeMarketing(tMarketing);
         _reflectFee(rFee, tFee);
-        if(recipient == _burnAddress) {
-            _tCircDisplay = _tCircDisplay.sub(tTransferAmount);
-        }
         emit Transfer(sender, recipient, tTransferAmount);
     }
 
@@ -1278,9 +1268,6 @@ contract ElonPeg is Context, IERC20, Ownable {
         _takeLiquidity(tLiquidity);
         _takeMarketing(tMarketing);
         _reflectFee(rFee, tFee);
-        if(recipient == _burnAddress) {
-            _tCircDisplay = _tCircDisplay.sub(tTransferAmount);
-        }
         emit Transfer(sender, recipient, tTransferAmount);
     }
 
